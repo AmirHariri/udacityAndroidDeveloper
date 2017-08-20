@@ -2,6 +2,7 @@ package com.example.android.popularmovies;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.text.method.MovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class MovieAdapter extends ArrayAdapter<Movie> {
 
@@ -18,13 +20,12 @@ class MovieAdapter extends ArrayAdapter<Movie> {
         super(context, 0, movies);
     }
 
-
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         // Check if the existing view is being reused, otherwise inflate the view
         View listItemView = convertView;
-        if(listItemView == null) {
+        if (listItemView == null) {
             listItemView = LayoutInflater.from(getContext()).inflate(
                     R.layout.list_item, parent, false);
         }
@@ -32,9 +33,10 @@ class MovieAdapter extends ArrayAdapter<Movie> {
         Movie currentMovie = getItem(position);
         ImageView ivPoster = (ImageView) listItemView.findViewById(R.id.movie_poster);
         if (currentMovie != null) {
-            Picasso.with(getContext()).load(currentMovie.getImageResourceId()).into(ivPoster);
+            Picasso.with(getContext()).load(currentMovie.getImageResourceId())
+                    .placeholder(R.drawable.movie_poster_placeholder)
+                    .into(ivPoster);
         }
-
         return listItemView;
     }
 }

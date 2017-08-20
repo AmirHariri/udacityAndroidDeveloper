@@ -27,7 +27,9 @@ public class MovieDetail extends AppCompatActivity {
         movieTitle.setText(mMovieTitle);
 
         ImageView movieThombnail = (ImageView)findViewById(R.id.iv_movie_detail_thombnail);
-        Picasso.with(this).load(mMoviePosterUrl).into(movieThombnail);
+        Picasso.with(this).load(mMoviePosterUrl)
+                                .placeholder(R.drawable.movie_poster_placeholder)
+                                .into(movieThombnail);
 
         TextView releaseDate = (TextView)findViewById(R.id.tv_release_date);
         releaseDate.setText(mMovieReleaseDate);
