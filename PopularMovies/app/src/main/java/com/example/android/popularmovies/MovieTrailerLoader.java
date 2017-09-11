@@ -2,16 +2,19 @@ package com.example.android.popularmovies;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.support.v4.content.Loader;
 
 import java.util.List;
 
+/**
+ * Created by Amir on 9/10/2017.
+ */
 
-
-public class MovieLoader extends AsyncTaskLoader<List<Movie>> {
+class MovieTrailerLoader extends AsyncTaskLoader <List<Movie.MovieTrailer>> {
 
 
     private String mUrl;
-    public MovieLoader(Context context,String url) {
+    public MovieTrailerLoader(Context context, String url) {
         super(context);
         mUrl = url;
     }
@@ -21,12 +24,12 @@ public class MovieLoader extends AsyncTaskLoader<List<Movie>> {
     }
 
     @Override
-    public List<Movie> loadInBackground() {
+    public List<Movie.MovieTrailer> loadInBackground() {
         if (mUrl == null) {
             return null;
         } else{
             // Perform the network request, parse the response, and extract a list of movies.
-            return QueryUtils.fetchMovieData(mUrl);
+            return QueryUtils.fetchYouTubeTrailerInfo(mUrl);
 
         }
     }

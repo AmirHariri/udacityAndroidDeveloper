@@ -13,26 +13,29 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.os.Build.VERSION_CODES.M;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Movie>>, SharedPreferences.OnSharedPreferenceChangeListener{
+public class MainActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<List<Movie>>,
+        SharedPreferences.OnSharedPreferenceChangeListener,
+        Serializable {
     /**
      * Tag for the log messages
      */
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
-
-    final String BASE_URL = "http://api.themoviedb.org/3/movie/";
-    //TODO: add your API key Here
-    final String API_KEY = "ADD YOUR TMDB KEY HERE";
-    final String BEFORE_API_KEY = "?api_key=";
     private static final int MOVIE_LOADER_ID = 0;
     private static final String CURRENT_POSITION = "position";
-
+    final static String BASE_URL = "http://api.themoviedb.org/3/movie/";
+    //TODO: add your API key Here
+    final static String API_KEY = "TheApiKey Here";
+    final static String BEFORE_API_KEY = "?api_key=";
+    SharedPreferences sharedPrefs;
     private MovieAdapter movieAdapter;
     private String orderBy;
-    SharedPreferences sharedPrefs;
     private Parcelable state;
     private GridView moviesGridView;
     private int mPosition;
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Initialize the loader. Pass in the int ID constant defined above and pass in null for
         // the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
         // because this activity implements the LoaderCallbacks interface).
-        loaderManager.initLoader(MOVIE_LOADER_ID, null, this);
+        loaderManager.initLoader(MOVIE_LOADER_ID, null, this).forceLoad();
 
         moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -74,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 double movieRating = currentMovie.getUserRating();
                 String movieSynopsis = currentMovie.getPlotSynopsis();
                 String movieThombnailUrl = currentMovie.getThombnailResourceId();
+                int movieId = currentMovie.getMovieId();
+                Movie.MovieTrailer movieTrailer = currentMovie.getMovieTrailer();
                 //start the activity for movie detail screen and send the information to it
                 Intent movieDetailIntent = new Intent(MainActivity.this, MovieDetail.class);
                 movieDetailIntent.putExtra("MOVIE_TITLE", movieTitle);
@@ -82,12 +87,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 movieDetailIntent.putExtra("MOVIE_RATING", movieRating);
                 movieDetailIntent.putExtra("MOVIE_SYNOPSIS", movieSynopsis);
                 movieDetailIntent.putExtra("MOVIE_THOMBNAIL_URL", movieThombnailUrl);
+                movieDetailIntent.putExtra("MOVIE_ID",movieId);
+                movieDetailIntent.putExtra("MOVIE_TRAILER", movieTrailer);
+
                 startActivity(movieDetailIntent);
             }
         });
-    if (savedInstanceState !=null &&savedInstanceState.containsKey(CURRENT_POSITION)){
-        mPosition =  savedInstanceState.getInt(CURRENT_POSITION);
-    }
+        if (savedInstanceState != null && savedInstanceState.containsKey(CURRENT_POSITION)) {
+            mPosition = savedInstanceState.getInt(CURRENT_POSITION);
+        }
 
     }
 
@@ -121,14 +129,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public void onLoadFinished(android.content.Loader<List<Movie>> loader, List<Movie> movies) {
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> movies) {
         movieAdapter.clear();
         // If there is a valid list of {@link Movie}s, then add them to the adapter's
-        // data set. This will trigger the ListView to update.
+        // data set. This will trigger the GridView to update.
         if (movies != null && !movies.isEmpty()) {
             movieAdapter.addAll(movies);
         }
-        if(mPosition != GridView.INVALID_POSITION){
+        if (mPosition != GridView.INVALID_POSITION) {
             moviesGridView.setSelection(mPosition);
         }
     }
@@ -138,10 +146,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         movieAdapter.clear();
     }
 
-   @Override
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String value = sharedPreferences.getString(key, getString(R.string.settings_order_by_default));
-        if (!value.equals(orderBy)  ) {
+        String value = sharedPreferences.getString(key,
+                getString(R.string.settings_order_by_default));
+        if (!value.equals(orderBy)) {
             orderBy = null;
             orderBy = value;
             LoaderManager loaderManager = getLoaderManager();
@@ -152,13 +161,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     //Store the position(mPosition) in the bundle
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if(mPosition != GridView.INVALID_POSITION){
+        if (mPosition != GridView.INVALID_POSITION) {
             outState.putInt(CURRENT_POSITION, mPosition);
         }
         super.onSaveInstanceState(outState);

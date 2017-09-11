@@ -1,5 +1,4 @@
 package com.example.android.popularmovies;
-
 import android.text.TextUtils;
 import android.util.Log;
 import org.json.JSONArray;
@@ -16,11 +15,14 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.android.popularmovies.MainActivity.API_KEY;
+import static com.example.android.popularmovies.MainActivity.BASE_URL;
+import static com.example.android.popularmovies.MainActivity.BEFORE_API_KEY;
 
 /**
  * Created by Amir on 8/5/2017.
  */
-public class QueryUtils {
+class QueryUtils {
     /** Tag for the log messages */
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
@@ -29,7 +31,7 @@ public class QueryUtils {
     /**
      * Query the TMDB dataset and return a list of {@link Movie} objects.
     */
-    public static List<Movie> fetchMovieData(String requestUrl) {
+    static List<Movie> fetchMovieData(String requestUrl) {
         // Create URL object
         URL url = createUrl(requestUrl);
         // Perform HTTP request to the URL and receive a JSON response back
@@ -149,10 +151,14 @@ public class QueryUtils {
                 // Extract the value for the key called "backdrop_path"
                 String backdropPathUrl = currentMovie.getString("backdrop_path");
 
+                //extract the value for the key called "id"
+                int movieId = currentMovie.getInt("id");
+
                 // Create a new {@link Movie} object with the magnitude, location, time,
                 // and url from the JSON response.
+
                 Movie movie = new Movie(originalMovieTitle, overView, releaseDate, averageVote,
-                        posterPathUrl, backdropPathUrl);
+                        posterPathUrl, backdropPathUrl,movieId);
                 movies.add(movie);
             }
         } catch (JSONException e) {
@@ -164,6 +170,65 @@ public class QueryUtils {
         // Return the list of movies
         return movies;
     }
+
+    static List<Movie.MovieTrailer> fetchYouTubeTrailerInfo(String requestUrl){
+        // Create URL object
+        URL url = createUrl(requestUrl);
+        // Perform HTTP request to the URL and receive a JSON response back
+        String jsonResponse = null;
+        try {
+            jsonResponse = makeHttpRequest(url);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Problem making the HTTP request.", e);
+        }
+        // Extract relevant fields from the JSON response and create a list of {@link Movie}s
+        return extractYouTubeKeyAndNameFromJson(jsonResponse);
+
+    }
+
+    private static List<Movie.MovieTrailer> extractYouTubeKeyAndNameFromJson(String movieTrailerJSON) {
+        // If the JSON string is empty or null, then return early.
+        if (TextUtils.isEmpty(movieTrailerJSON)) {
+            return null;
+        }
+        // Create an empty ArrayList that we can start adding youTube Keys to
+        List<Movie.MovieTrailer> movieTrailers = new ArrayList<>();
+        // Try to parse the JSON response string. If there's a problem with the way the JSON
+        // is formatted, a JSONException exception object will be thrown.
+        // Catch the exception so the app doesn't crash, and print the error message to the logs.
+        try {
+            // Create a JSONObject from the JSON response string
+            JSONObject baseJsonResponse = new JSONObject(movieTrailerJSON);
+            // Extract the JSONArray associated with the key called "results",
+            // which represents a list of Result (or movies).
+            JSONArray movieTrailerArray = baseJsonResponse.getJSONArray("results");
+            // For each movie in the movieArray, create an {@link Movie} object
+            for (int i = 0; i < movieTrailerArray.length(); i++) {
+                // Get a single key for position i within the list of movie trailers
+                JSONObject currentMovieTrailer = movieTrailerArray.getJSONObject(i);
+
+                // Extract the value for the key called "key"
+                String key = currentMovieTrailer.getString("key");
+                //movieTrailerYouTubeKeys.add(key);
+                String name = currentMovieTrailer.getString("name");
+                //movieTrailerNames.add(name);
+                Movie.MovieTrailer movieTrailer = new Movie.MovieTrailer(key, name);
+                movieTrailers.add(movieTrailer);
+
+            }
+
+        }catch (JSONException e) {
+            // If an error is thrown when executing any of the above statements in the "try" block,
+            // catch the exception here, so the app doesn't crash. Print a log message
+            // with the message from the exception.
+            Log.e("QueryUtils", "Problem parsing the movieTrailer JSON results", e);
+        }
+
+
+        // Return the list of movies
+        return movieTrailers;
+    }
+
 
     private static URL createUrl(String  stringUrl){
         URL url = null;

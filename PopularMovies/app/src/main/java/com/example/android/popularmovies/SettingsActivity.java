@@ -1,5 +1,4 @@
 package com.example.android.popularmovies;
-
 import android.content.SharedPreferences;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -10,7 +9,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
-
 
 public class SettingsActivity extends AppCompatActivity {
 

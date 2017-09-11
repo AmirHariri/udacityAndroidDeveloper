@@ -31,7 +31,7 @@ class MovieAdapter extends ArrayAdapter<Movie> {
         }
         // Get the {@link Movie} object located at this position in the list
         Movie currentMovie = getItem(position);
-        ImageView ivPoster = (ImageView) listItemView.findViewById(R.id.movie_poster);
+        ImageView ivPoster = listItemView.findViewById(R.id.movie_poster);
         if (currentMovie != null) {
             Picasso.with(getContext()).load(currentMovie.getImageResourceId())
                     .placeholder(R.drawable.movie_poster_placeholder)
