@@ -23,11 +23,18 @@ class Movie {
     private MovieTrailer movieTrailer;
     //for movie Id;
     private int movieId;
+    //for movie Reviewa;
+    private List<String> reviews;
+
+    String favoriteMovieTitle;
+    String favoriteSynopsis;
+    int favoriteReleaseDate;
+    String favoriteRating;
 
 
 
     Movie(String vOriginalMovieTitle, String vPlotSynopsis, String  vReleaseDate, double vUserRating,
-                 String  vImageResourceId, String  vThombnailResourceId,int vMovieId){
+                 String  vImageResourceId, String  vThombnailResourceId,int vMovieId,List<String> vReviews){
         this.originalMovieTitle = vOriginalMovieTitle;
         this.plotSynopsis = vPlotSynopsis;
         this.releaseDate = vReleaseDate;
@@ -35,11 +42,11 @@ class Movie {
         this.imageResourceId = vImageResourceId;
         this.thombnailResourceId = vThombnailResourceId;
         this.movieId = vMovieId;
-
+        this.reviews = vReviews;
 
     }
-    public static class MovieTrailer implements Serializable{
-        private static final String LOG_TAG = Movie.class.getSimpleName();
+
+    public static class MovieTrailer {
         public String  movieTrailerYouTubeKey;
         public String  movieTrailerName;
 
@@ -54,6 +61,22 @@ class Movie {
         public String getMovieTrailerName(){
             return movieTrailerName;
         }
+
+    }
+    public class FavoriteMovie {
+        String favoriteMovieTitle;
+        String favoriteSynopsis;
+        String  favoriteReleaseDate;
+        int favoriteRating;
+
+        FavoriteMovie(String vFavoriteMovieTitle,String vPlotSynopsis,String vReleaseDate,int vUserRating) {
+
+            this.favoriteMovieTitle = vFavoriteMovieTitle;
+            this.favoriteSynopsis = vPlotSynopsis;
+            this.favoriteReleaseDate = vReleaseDate;
+            this.favoriteRating = vUserRating;
+        }
+
 
     }
 
@@ -73,13 +96,16 @@ class Movie {
         return stringUrlBuilder(imageResourceId,"w500");
     }
     public String  getThombnailResourceId() {
-        return stringUrlBuilder(thombnailResourceId, "original");
+        return stringUrlBuilder(imageResourceId, "original");
     }
     public MovieTrailer getMovieTrailer(){
         return movieTrailer;
     }
     public int getMovieId() {
         return movieId;
+    }
+    public List<String>  getReviews(){
+        return reviews;
     }
 
 
@@ -92,4 +118,6 @@ class Movie {
         url = builder.toString();
         return url;
     }
+
+
 }

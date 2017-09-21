@@ -4,18 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal">
-    <Button
+    <android.support.v7.widget.AppCompatImageButton
         android:id="@+id/button_play_trailer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@mipmap/play_trailer"
-        android:onClick="playtrailer"/>
+        android:src="@mipmap/play_trailer"
+        android:padding="5dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        />
 
     <TextView
         android:id="@+id/tv_trailer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Trailer1"
+        android:layout_gravity="center"
         tools:text="Trailer1" />
 
 

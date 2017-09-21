@@ -154,11 +154,16 @@ class QueryUtils {
                 //extract the value for the key called "id"
                 int movieId = currentMovie.getInt("id");
 
-                // Create a new {@link Movie} object with the magnitude, location, time,
+                //to Fetch Reviews from API using id
+                //first create the String URL
+                String stringReviewUrl = createReviewUrlString(movieId);
+                List<String> movieReviews = fetchMovieReviews(stringReviewUrl);
+
+                // Create a new {@link Movie} object with the title, releaseDate,votes,id,reviews
                 // and url from the JSON response.
 
                 Movie movie = new Movie(originalMovieTitle, overView, releaseDate, averageVote,
-                        posterPathUrl, backdropPathUrl,movieId);
+                        posterPathUrl, backdropPathUrl,movieId,movieReviews);
                 movies.add(movie);
             }
         } catch (JSONException e) {
@@ -170,6 +175,50 @@ class QueryUtils {
         // Return the list of movies
         return movies;
     }
+    static List<String > fetchMovieReviews(String requestUrl) {
+        // Create URL object
+        URL url = createUrl(requestUrl);
+        // Perform HTTP request to the URL and receive a JSON response back
+        String jsonResponse = null;
+        try {
+            jsonResponse = makeHttpRequest(url);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Problem making the HTTP request.", e);
+        }
+        // Extract relevant fields from the JSON response and create a list of {@link Movie}s
+        return extractReviewsFromJson(jsonResponse);
+    }
+
+    private static List<String> extractReviewsFromJson(String reviewJSON) {
+        // If the JSON string is empty or null, then return early.
+        if (TextUtils.isEmpty(reviewJSON)) {
+            return null;
+        }
+        ArrayList<String> reviews = new ArrayList<>();
+        try{
+            // Create a JSONObject from the JSON response string
+            JSONObject baseJsonResponse = new JSONObject(reviewJSON);
+            // Extract the JSONArray associated with the key called "results",
+            // which represents a list of Result (or reviews).
+            JSONArray reviewsArray = baseJsonResponse.getJSONArray("results");
+            // For each movie in the reviewsArray, create an {@link Movie} object
+            for (int i = 0; i < reviewsArray.length(); i++) {
+
+                // Get a single movie at position i within the list of movies
+                JSONObject currentReview = reviewsArray.getJSONObject(i);
+
+                // Extract the value for the key called "original_title"
+                String review = currentReview.getString("content");
+                reviews.add(review);
+            }
+
+
+        }catch (JSONException e) {
+            Log.e("QueryUtils", "Problem parsing the movie JSON results", e);
+        }
+        return reviews;
+    }
+
 
     static List<Movie.MovieTrailer> fetchYouTubeTrailerInfo(String requestUrl){
         // Create URL object
@@ -228,9 +277,18 @@ class QueryUtils {
         // Return the list of movies
         return movieTrailers;
     }
+    public static String createReviewUrlString(int movieID){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(BASE_URL);
+        stringBuilder.append(String.valueOf(movieID) + "/reviews");
+        stringBuilder.append(BEFORE_API_KEY);
+        stringBuilder.append(API_KEY);
+        String movieUri = stringBuilder.toString();
+        return movieUri;
+    }
 
 
-    private static URL createUrl(String  stringUrl){
+    public static URL createUrl(String  stringUrl){
         URL url = null;
         try{
             url = new URL(stringUrl);

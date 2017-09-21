@@ -13,16 +13,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.os.Build.VERSION_CODES.M;
 
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<List<Movie>>,
-        SharedPreferences.OnSharedPreferenceChangeListener,
-        Serializable {
+        SharedPreferences.OnSharedPreferenceChangeListener {
     /**
      * Tag for the log messages
      */
@@ -31,12 +28,11 @@ public class MainActivity extends AppCompatActivity implements
     private static final String CURRENT_POSITION = "position";
     final static String BASE_URL = "http://api.themoviedb.org/3/movie/";
     //TODO: add your API key Here
-    final static String API_KEY = "TheApiKey Here";
+    final static String API_KEY = "add your API key Here";
     final static String BEFORE_API_KEY = "?api_key=";
     SharedPreferences sharedPrefs;
     private MovieAdapter movieAdapter;
     private String orderBy;
-    private Parcelable state;
     private GridView moviesGridView;
     private int mPosition;
 
@@ -78,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements
                 String movieSynopsis = currentMovie.getPlotSynopsis();
                 String movieThombnailUrl = currentMovie.getThombnailResourceId();
                 int movieId = currentMovie.getMovieId();
+                List<String> movieReviews = currentMovie.getReviews();
                 Movie.MovieTrailer movieTrailer = currentMovie.getMovieTrailer();
                 //start the activity for movie detail screen and send the information to it
                 Intent movieDetailIntent = new Intent(MainActivity.this, MovieDetail.class);
@@ -87,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements
                 movieDetailIntent.putExtra("MOVIE_RATING", movieRating);
                 movieDetailIntent.putExtra("MOVIE_SYNOPSIS", movieSynopsis);
                 movieDetailIntent.putExtra("MOVIE_THOMBNAIL_URL", movieThombnailUrl);
-                movieDetailIntent.putExtra("MOVIE_ID",movieId);
-                movieDetailIntent.putExtra("MOVIE_TRAILER", movieTrailer);
+                movieDetailIntent.putExtra("MOVIE_ID", movieId);
+                movieDetailIntent.putStringArrayListExtra("MOVIE_REVIEWS", (ArrayList<String>) movieReviews);
 
                 startActivity(movieDetailIntent);
             }
@@ -118,14 +115,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public Loader<List<Movie>> onCreateLoader(int i, Bundle bundle) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(BASE_URL);
-        stringBuilder.append(orderBy);
-        stringBuilder.append(BEFORE_API_KEY);
-        stringBuilder.append(API_KEY);
-        String movieUri = stringBuilder.toString();
-        return new MovieLoader(this, movieUri);
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(BASE_URL);
+            stringBuilder.append(orderBy);
+            stringBuilder.append(BEFORE_API_KEY);
+            stringBuilder.append(API_KEY);
+            String movieUri = stringBuilder.toString();
+            return new MovieLoader(this, movieUri);
     }
 
     @Override
@@ -148,13 +144,18 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String value = sharedPreferences.getString(key,
-                getString(R.string.settings_order_by_default));
-        if (!value.equals(orderBy)) {
-            orderBy = null;
-            orderBy = value;
-            LoaderManager loaderManager = getLoaderManager();
-            loaderManager.restartLoader(MOVIE_LOADER_ID, null, this);
+        String value = sharedPreferences.getString(key, getString(R.string.settings_order_by_default));
+        if (value.equals(getString(R.string.settings_order_top_rated)) ||
+                value.equals(getString(R.string.settings_order_most_popular))) {
+            if (!value.equals(orderBy)) {
+                orderBy = null;
+                orderBy = value;
+                LoaderManager loaderManager = getLoaderManager();
+                loaderManager.restartLoader(MOVIE_LOADER_ID, null, this);
+            }
+        } else if(value.equals(getString(R.string.setting_order_favorite))){
+            Intent favoriteIntent = new Intent(this, FavoriteMovieActivity.class);
+            startActivity(favoriteIntent);
         }
     }
 
