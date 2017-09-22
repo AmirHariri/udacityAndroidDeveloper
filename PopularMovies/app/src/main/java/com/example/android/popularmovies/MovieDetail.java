@@ -1,6 +1,5 @@
 package com.example.android.popularmovies;
 
-import android.app.SharedElementCallback;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.app.LoaderManager;
@@ -8,7 +7,7 @@ import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
+
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,7 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ScrollView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,9 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.example.android.popularmovies.data.FavoriteMovieListContract.FavoriteMovieListEntry;
 
-import static android.R.attr.id;
-import static android.R.attr.name;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
+
 import static com.example.android.popularmovies.MainActivity.API_KEY;
 import static com.example.android.popularmovies.MainActivity.BASE_URL;
 import static com.example.android.popularmovies.MainActivity.BEFORE_API_KEY;
@@ -63,27 +60,6 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
         setContentView(R.layout.activity_movie_detail);
         //ScrollView scrollView = (ScrollView)findViewById(R.id.sv_detail);
         //scrollView.scrollTo(200,10);
-        checkBoxKey = mMovieTitle;
-        favoriteCheckBox = (CheckBox) findViewById(R.id.checkbox_favorite);
-        loadSavedPreferences();
-        //een = (CheckBox) findViewById(R.id.checkBox1);
-        favoriteCheckBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                savePreferences(checkBoxKey, favoriteCheckBox.isChecked());
-                if(((CheckBox) view).isChecked()){
-                    Toast.makeText(MovieDetail.this, "Added to your Favorite Movies", Toast.LENGTH_SHORT).show();
-                    long newId = addNewMovie();
-                    Log.i(LOG_TAG, "New Movie with id of " + newId + " is added");
-                }else {
-                    Toast.makeText(MovieDetail.this, "Removed from your Favorite Movies", Toast.LENGTH_SHORT).show();
-                    boolean isDeleted = removeMovie(mMovieID);
-                    Log.i(LOG_TAG, "This movie is removed from data List :" + isDeleted);
-                }
-
-            }
-        });
-
 
         //get the Movie data from the MainActivity
         Intent movieDetailIntent = getIntent();
@@ -121,12 +97,32 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
             }
         });
 
+
         // Get a reference to the LoaderManager, in order to interact with loaders.
         LoaderManager loaderManager = getLoaderManager();
         // Initialize the loader. Pass in the int ID constant defined above and pass in null for
         // the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
         // because this activity implements the LoaderCallbacks interface).
         loaderManager.initLoader(TRAILER_LOADER_ID, null, this).forceLoad();
+
+        checkBoxKey = mMovieTitle;
+        favoriteCheckBox = (CheckBox) findViewById(R.id.checkbox_favorite);
+        loadSavedPreferences();
+        favoriteCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //savePreferences(checkBoxKey, favoriteCheckBox.isChecked());
+                if(((CheckBox) view).isChecked()){
+                    Toast.makeText(MovieDetail.this, "Added to your Favorite Movies", Toast.LENGTH_SHORT).show();
+                    long newId = addNewMovie();
+                    Log.i(LOG_TAG, "New Movie with id of " + newId + " is added");
+                }else {
+                    Toast.makeText(MovieDetail.this, "Removed from your Favorite Movies", Toast.LENGTH_SHORT).show();
+                    boolean isDeleted = removeMovie(mMovieID);
+                    Log.i(LOG_TAG, "This movie is removed from data List :" + isDeleted);
+                }
+            }
+        });
 
         TextView movieTitle = (TextView) findViewById(R.id.tv_movie_title);
         movieTitle.setText(mMovieTitle);
@@ -192,14 +188,16 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
             favoriteCheckBox.setChecked(true);
         } else {
             favoriteCheckBox.setChecked(false);
+
         }
     }
 
 
     private void savePreferences(String key, boolean value) {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(key, value);
-        editor.commit();
+        editor.apply();
     }
 
 /*
@@ -250,7 +248,7 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
         trailerAdapter.clear();
 
     }
-
+/*
     @Override
     protected void onStart() {
         super.onStart();
@@ -258,7 +256,7 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
         Log.i(LOG_TAG,"On Start ---------");
     }
 
-
+*/
     /**
      * Query the mDb and get all guests from the favoritelist table
      *
@@ -275,8 +273,6 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
                 null
         );
     }
-
-
     private long addNewMovie() {
         ContentValues cv = new ContentValues();
         cv.put(FavoriteMovieListEntry.COLUMN_MOVIE_TITLE, mMovieTitle);
