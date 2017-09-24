@@ -63,13 +63,13 @@ class Movie {
         }
 
     }
-    public class FavoriteMovie {
+    public static class FavoriteMovie {
         String favoriteMovieTitle;
         String favoriteSynopsis;
         String  favoriteReleaseDate;
-        int favoriteRating;
+        Double favoriteRating;
 
-        FavoriteMovie(String vFavoriteMovieTitle,String vPlotSynopsis,String vReleaseDate,int vUserRating) {
+        FavoriteMovie(String vFavoriteMovieTitle,String vPlotSynopsis,String vReleaseDate,Double vUserRating) {
 
             this.favoriteMovieTitle = vFavoriteMovieTitle;
             this.favoriteSynopsis = vPlotSynopsis;
@@ -77,7 +77,21 @@ class Movie {
             this.favoriteRating = vUserRating;
         }
 
+        public String getFavoriteMovieTitle() {
+            return favoriteMovieTitle;
+        }
 
+        public String getFavoriteSynopsis() {
+            return favoriteSynopsis;
+        }
+
+        public String getFavoriteReleaseDate() {
+            return favoriteReleaseDate;
+        }
+
+        public Double getFavoriteRating() {
+            return favoriteRating;
+        }
     }
 
     public String getOriginalMovieTitle(){

@@ -20,7 +20,6 @@ public class FavoriteMovieContentProvider extends ContentProvider {
     public static final int FAVORITE = 100;
     public static final int FAVORITE_WITH_ID = 101;
 
-
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     public static UriMatcher buildUriMatcher() {
 
@@ -34,12 +33,12 @@ public class FavoriteMovieContentProvider extends ContentProvider {
 
         return uriMatcher;
     }
-    FavoriteMovieListDataHelper mMovieListDataHelper;
+    private FavoriteMovieDbHelper mMovieListDataHelper;
 
     @Override
     public boolean onCreate() {
         Context context = getContext();
-        mMovieListDataHelper = new FavoriteMovieListDataHelper(context);
+        mMovieListDataHelper = new FavoriteMovieDbHelper(context);
         return true;
     }
 

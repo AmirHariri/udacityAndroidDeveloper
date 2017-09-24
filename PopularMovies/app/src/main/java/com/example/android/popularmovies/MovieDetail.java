@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.popularmovies.data.FavoriteMovieListDataHelper;
+import com.example.android.popularmovies.data.FavoriteMovieDbHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -170,7 +170,7 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
         });
 
         // Create a DB helper (this will create the DB if run for the first time)
-        FavoriteMovieListDataHelper dbHelper = new FavoriteMovieListDataHelper(this);
+        FavoriteMovieDbHelper dbHelper = new FavoriteMovieDbHelper(this);
 
         // Keep a reference to the mDb until paused or killed. Get a writable database
         // because you will be adding restaurant customers

@@ -2,6 +2,7 @@ package com.example.android.popularmovies;
 
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -11,9 +12,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.example.android.popularmovies.data.FavoriteMovieDbHelper;
+
 import java.util.ArrayList;
 
-import static android.R.attr.data;
 import static com.example.android.popularmovies.data.FavoriteMovieListContract.FavoriteMovieListEntry;
 
 public class FavoriteMovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -22,20 +24,20 @@ public class FavoriteMovieActivity extends AppCompatActivity implements LoaderMa
     private static final int FAVORITE_LOADER_ID = 3;
 
     // Member variables for the adapter and RecyclerView
-    FavoriteCursorAdapter mAdapter;
     RecyclerView mRecyclerView;
+    FavoriteAdapter favoriteAdapter;
+    ArrayList<Movie.FavoriteMovie> favoriteMovies;
     Cursor mFavoriteData;
-    FavoriteCursorAdapter favoriteCursorAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite_movie);
 
-        ArrayList<Movie.FavoriteMovie> favoriteMovies = new ArrayList<>();
-        mAdapter= new FavoriteCursorAdapter(this,mFavoriteData);
+        favoriteAdapter = new FavoriteAdapter(this,mFavoriteData);
         mRecyclerView = (RecyclerView)findViewById(R.id.rv_favoritelist);
-        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(favoriteAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         getSupportLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
@@ -61,20 +63,23 @@ public class FavoriteMovieActivity extends AppCompatActivity implements LoaderMa
                     forceLoad();
                 }
             }
-
             // loadInBackground() performs asynchronous loading of data
             @Override
             public Cursor loadInBackground() {
                 // Will implement to load data
-
                 // Query and load all favorite data in the background; sort by id
 
                 try {
+                    String[] projection = {FavoriteMovieListEntry.COLUMN_MOVIE_TITLE,
+                                            FavoriteMovieListEntry.COLUMN_MOVIE_RELEASE_DATE,
+                                            FavoriteMovieListEntry.COLUMN_MOVIE_RATING,
+                                            FavoriteMovieListEntry.COLUMN_MOVIE_PLOT_SYNOPSYS};
                     return getContentResolver().query(FavoriteMovieListEntry.CONTENT_URI,
-                            null,
+                            projection,
                             null,
                             null,
                             FavoriteMovieListEntry._ID);
+
 
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to asynchronously load data.");
@@ -88,18 +93,20 @@ public class FavoriteMovieActivity extends AppCompatActivity implements LoaderMa
                 mFavoriteData = data;
                 super.deliverResult(data);
             }
-
-
         };
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        favoriteAdapter.swapCursor(data);
+        mFavoriteData = data;
+
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
+        favoriteAdapter.swapCursor(null);
     }
+
+
 }
