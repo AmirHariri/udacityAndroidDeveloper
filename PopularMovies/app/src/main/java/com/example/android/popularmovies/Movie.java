@@ -1,8 +1,5 @@
 package com.example.android.popularmovies;
 
-
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 class Movie {
@@ -26,13 +23,6 @@ class Movie {
     //for movie Reviewa;
     private List<String> reviews;
 
-    String favoriteMovieTitle;
-    String favoriteSynopsis;
-    int favoriteReleaseDate;
-    String favoriteRating;
-
-
-
     Movie(String vOriginalMovieTitle, String vPlotSynopsis, String  vReleaseDate, double vUserRating,
                  String  vImageResourceId, String  vThombnailResourceId,int vMovieId,List<String> vReviews){
         this.originalMovieTitle = vOriginalMovieTitle;
@@ -43,7 +33,6 @@ class Movie {
         this.thombnailResourceId = vThombnailResourceId;
         this.movieId = vMovieId;
         this.reviews = vReviews;
-
     }
 
     public static class MovieTrailer {
